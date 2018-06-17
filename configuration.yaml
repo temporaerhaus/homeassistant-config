@@ -1,0 +1,148 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 48.39646
+  longitude: 9.99041
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 484
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Berlin
+  # Customization file
+  customize: !include customize.yaml
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  # Secrets are defined in the file secrets.yaml
+  # api_password: !secret http_password
+  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+  # base_url: example.duckdns.org:8123
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# use the hass.io mosquitto broker
+mqtt:
+  broker: core-mosquitto
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+#conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+#map:
+
+# Track the sun
+sun:
+
+# Weather prediction
+sensor:
+  - platform: luftdaten
+    sensorid: 255
+    monitored_conditions:
+      - P1
+      - P2
+  - platform: luftdaten
+    sensorid: 256
+    monitored_conditions:
+      - temperature
+      - humidity
+  - platform: rest
+    resource: https://map10.freifunk-ulm.de/data/nodes.json
+    method: GET
+    name: "Freifunk Clients"
+    value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="statistics") | map(attribute="clients") | first }}'
+
+binary_sensor:
+  - platform: rest
+    resource: http://192.168.9.30
+    method: GET
+    name: Door
+    value_template: '{{ value_json.state.open }}'
+    icon: mdi:door
+
+
+# Text to speech
+tts:
+  - platform: google
+
+device_tracker:
+  - platform: unifi
+    host: "192.168.9.9"
+    username: !secret unifi_username
+    password: !secret unifi_password
+    verify_ssl: False
+    new_device_defaults:
+      track_new_devices: False
+      hide_if_away: True
+
+input_select:
+  door_override:
+    name: Door status override
+    options:
+     - real
+     - closed
+     - open
+    initial: real
+    icon: mdi:door
+
+input_boolean:
+  door_result:
+    name: Door status result
+    icon: mdi:door
+
+light:
+  - platform: mqtt
+    name: "Door Traffic Light Green"
+    command_topic: "sonoff-98098B/relay/0/set"
+    state_topic: "sonoff-98098B/relay/0"
+    payload_off: "0"
+    payload_on: "1"
+  - platform: mqtt
+    name: "Door Traffic Light Red"
+    command_topic: "sonoff-98098B/relay/1/set"
+    state_topic: "sonoff-98098B/relay/1"
+    payload_off: "0"
+    payload_on: "1"
+
+switch:
+  - platform: mqtt
+    name: "Poller"
+    command_topic: "vsh/output/poller/set_on_ms"
+    state_topic: "vsh/output/poller"
+    payload_on: "1500"
+    payload_off: "5"
+
+rest_command:
+  send_door_state_website:
+    url: 'https://verschwoerhaus.de/wp-json/open-door/state'
+    method: 'POST'
+    content_type: 'application/json'
+    payload: !secret website_door_payload
+
+media_extractor:
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml

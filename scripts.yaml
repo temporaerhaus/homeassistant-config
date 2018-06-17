@@ -1,0 +1,49 @@
+
+space:
+  alias: Space
+  sequence:
+    - service: logbook.log
+      data_template:
+        name: Space
+        message: is being activated
+    - service: media_extractor.play_media
+      data:
+        entity_id: media_player.kreiselcast
+        #media_content_id: https://www.youtube.com/watch?v=rLf6tI4XabQ
+        media_content_id: https://www.youtube.com/playlist?list=PLRJOWz6dYKtHpET4bmY6m3C9H9MlZnx03
+        media_content_type: video/youtube
+        #media_content_id: http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+        #media_content_type: video/mp4
+        #media_content_id: http://www.ustream.tv/embed/17074538
+        #media_content_type: video
+    #- service: media_player.play_media
+    #  data:
+    #    entity_id: media_player.salon
+    #    media_content_id: http://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluidscape.mp3
+    #    media_content_type: MUSIC
+space_music:
+  alias: Space Music
+  sequence:
+    #- service: media_player.play_media
+    - service: media_extractor.play_media
+      data:
+        entity_id: media_player.salon
+        #media_content_id: http://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluidscape.mp3
+        media_content_id: https://www.youtube.com/watch?v=tYh8q8z2kCw
+        media_content_type: video/youtube
+        #media_content_type: MUSIC
+cat_videos:
+  alias: Cat Videos
+  sequence:
+    - service: media_extractor.play_media
+      data:
+        entity_id: media_player.kreiselcast
+        #media_content_id: https://www.youtube.com/watch?v=kexjYVJt_cY
+        media_content_id: https://www.youtube.com/watch?v=Ah6nNHSFK1A
+        media_content_type: video/youtube
+stop_cast:
+  alias: Stop Cast
+  sequence:
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.kreiselcast

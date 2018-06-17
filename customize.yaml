@@ -1,0 +1,5 @@
+group.all_devices:
+  hidden: false
+  friendly_name: Devices
+input_boolean.door_result:
+  hidden: true

@@ -1,0 +1,8 @@
+door:
+  name: door
+  view: yes
+  icon: mdi:door
+  entities:
+    - binary_sensor.door
+    - group.all_devices
+    - input_select.door_override

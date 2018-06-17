@@ -1,0 +1,6 @@
+secrets.yaml
+.uuid
+.HA_VERSION
+known_devices.yaml
+*.log
+*.db
