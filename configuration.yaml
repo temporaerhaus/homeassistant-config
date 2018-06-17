@@ -139,7 +139,9 @@ rest_command:
     url: 'https://verschwoerhaus.de/wp-json/open-door/state'
     method: 'POST'
     content_type: 'application/json'
-    payload: !secret website_door_payload
+    headers:
+      Authorization: !secret website_door_auth_header
+    payload: "{\"open-door\":{\"state\":\"{% if is_state('input_boolean.door_result', 'on') %}open{% else %}closed{% endif %}\"}}"
 
 media_extractor:
 
