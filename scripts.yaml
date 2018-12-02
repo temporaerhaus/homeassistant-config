@@ -47,3 +47,36 @@ stop_cast:
     - service: media_player.media_stop
       data:
         entity_id: media_player.kreiselcast
+random_ela:
+  alias: Play random stuff on ELA
+  sequence:
+    - service: media_player.play_media
+      data_template:
+        #message: '{"entity_id":"media_player.ela","media_content_id":"http://192.168.9.40/ela/{{ (range(1, 5)|random) }}.mp3","media_content_type":"audio/mp3"}'
+        entity_id: media_player.ela
+        media_content_id: "http://192.168.9.40/ela/{{ (range(1, 11)|random) }}.mp3"
+        media_content_type: "audio/mp3"
+random_kmart_ela:
+  alias: Play random kmart announcement on ELA
+  sequence:
+    - service: media_player.play_media
+      data_template:
+        entity_id: media_player.ela
+        media_content_id: "http://192.168.9.40/ela/kmart/{{ (range(1, 14)|random) }}.mp3"
+        media_content_type: "audio/mp3"
+attention_ela:
+  alias: Play attention bell on ELA
+  sequence:
+    - service: media_player.play_media
+      data:
+        entity_id: media_player.ela
+        media_content_id: "http://192.168.9.40/ela/airplane-seat-pling.mp3"
+        media_content_type: "audio/mp3"
+crickets_ela:
+  alias: Play crickets on ELA
+  sequence:
+    - service: media_player.play_media
+      data:
+        entity_id: media_player.ela
+        media_content_id: "http://192.168.9.40/ela/crickets.mp3"
+        media_content_type: "audio/mp3"
