@@ -1,8 +1,22 @@
 door:
   name: door
-  view: yes
   icon: mdi:door
   entities:
     - binary_sensor.door
-    - group.all_devices
     - input_select.door_override
+
+feinstaub:
+  name: Feinstaubsensor Innenhof
+  icon: mdi:cloud
+  entities:
+    - sensor.luftdaten_humidity
+    - sensor.luftdaten_temperature
+    - sensor.luftdaten_pm10
+    - sensor.luftdaten_pm25
+
+salon:
+  name: Salon
+  entities:
+    - sensor.salon_co2
+    - sensor.salon_humidity
+    - sensor.salon_temperature
