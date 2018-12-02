@@ -1,0 +1,34 @@
+esphomeyaml:
+  name: quality
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret iot_wifi_ssid
+  password: !secret iot_wifi_password
+  manual_ip:
+    static_ip: '192.168.9.50'
+    gateway: '192.168.9.2'
+    subnet: '255.255.255.0'
+
+mqtt:
+  broker: '192.168.9.43'
+  username: 'quality'
+  password: !secret iot_mqtt_quality_passsword
+
+# Enable logging
+logger:
+
+ota:
+
+sensor:
+  - platform: dht
+    pin: D7
+    model: DHT22
+    temperature:
+      name: "Salon Temperature"
+    humidity:
+      name: "Salon Humidity"
+    update_interval: 15s
+
+#mhz19: d1,d2

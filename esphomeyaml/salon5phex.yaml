@@ -1,0 +1,54 @@
+esphomeyaml:
+  name: salon5phex
+  platform: ESP8266
+  board: esp01_1m
+  board_flash_mode: dout
+
+wifi:
+  ssid: !secret iot_wifi_ssid
+  password: !secret iot_wifi_password
+  manual_ip:
+    static_ip: '192.168.9.53'
+    gateway: '192.168.9.2'
+    subnet: '255.255.255.0'
+
+mqtt:
+  broker: '192.168.9.43'
+  username: 'hex'
+  password: !secret iot_mqtt_salonp5hex_passsword
+
+# Enable logging
+logger:
+
+ota:
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Salon 5P Hex Button"
+    on_press:
+      then:
+        - switch.toggle:
+            id: relay
+  - platform: status
+    name: "Salon 5P Hex Power Status"
+
+output:
+  - platform: gpio
+    pin: 12
+    id: 'relay_out'
+    
+switch:
+  - platform: output
+    name: "Salon 5P Hex Power"
+    output: 'relay_out'
+    id: relay
+    discovery: false
+
+light:
+  - platform: binary
+    name: "Salon 5P Hex"
+    output: relay_out
