@@ -1,4 +1,4 @@
-- id: door_status_calc_open 
+- id: door_status_calc_open
   alias: Door Status Calculate Open
   trigger:
     platform: state
@@ -7,12 +7,11 @@
   condition:
     condition: state
     entity_id: input_select.door_override
-    state: 'real'
+    state: real
   action:
-    - service: homeassistant.turn_on
-      entity_id: input_boolean.door_result
-    - event: VSH_DOOR_PUBLISH_OPEN
-
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.door_result
+  - event: VSH_DOOR_PUBLISH_OPEN
 - id: door_status_calc_closed
   alias: Door Status Calculate Closed
   trigger:
@@ -22,81 +21,99 @@
   condition:
     condition: state
     entity_id: input_select.door_override
-    state: 'real'
+    state: real
   action:
-    - service: homeassistant.turn_off
-      entity_id: input_boolean.door_result
-    - event: VSH_DOOR_PUBLISH_CLOSED
-
+  - service: homeassistant.turn_off
+    entity_id: input_boolean.door_result
+  - event: VSH_DOOR_PUBLISH_CLOSED
 - id: door_status_override_closed
   alias: Door Status Override Closed
   trigger:
     platform: state
     entity_id: input_select.door_override
-    to: 'closed'
+    to: closed
   action:
-    - service: homeassistant.turn_off
-      entity_id: input_boolean.door_result
-    - event: VSH_DOOR_PUBLISH_CLOSED
-
+  - service: homeassistant.turn_off
+    entity_id: input_boolean.door_result
+  - event: VSH_DOOR_PUBLISH_CLOSED
 - id: door_status_override_open
   alias: Door Status Override Open
   trigger:
     platform: state
     entity_id: input_select.door_override
-    to: 'open'
+    to: open
   action:
-    - service: homeassistant.turn_on
-      entity_id: input_boolean.door_result
-    - event: VSH_DOOR_PUBLISH_OPEN
-
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.door_result
+  - event: VSH_DOOR_PUBLISH_OPEN
 - id: door_status_publish_open
   alias: Door Status Publish Open
   trigger:
-    - platform: state
-      entity_id: input_boolean.door_result
-      to: 'on'
-    - platform: event
-      event_type: VSH_DOOR_PUBLISH_OPEN
+  - platform: state
+    entity_id: input_boolean.door_result
+    to: 'on'
+  - platform: event
+    event_type: VSH_DOOR_PUBLISH_OPEN
   action:
-    - service: homeassistant.turn_on
-      entity_id: light.door_traffic_light_green
-    - service: rest_command.send_door_state_website
-    - service: mqtt.publish
-      data: 
-        topic: "vsh/door"
-        payload: "open"
-        retain: true
-
+  - service: homeassistant.turn_on
+    entity_id: light.door_traffic_light_green
+  - service: rest_command.send_door_state_website
+  - service: mqtt.publish
+    data:
+      topic: vsh/door
+      payload: open
+      retain: true
 - id: door_status_publish_closed
   alias: Door Status Publish Closed
   trigger:
-    - platform: state
-      entity_id: input_boolean.door_result
-      to: 'off'
-    - platform: event
-      event_type: VSH_DOOR_PUBLISH_CLOSED
+  - platform: state
+    entity_id: input_boolean.door_result
+    to: 'off'
+  - platform: event
+    event_type: VSH_DOOR_PUBLISH_CLOSED
   action:
-    - service: homeassistant.turn_on
-      entity_id: light.door_traffic_light_red
-    - service: rest_command.send_door_state_website
-    - service: mqtt.publish
-      data:
-        topic: "vsh/door"
-        payload: "closed"
-        retain: true
-
+  - service: homeassistant.turn_on
+    entity_id: light.door_traffic_light_red
+  - service: rest_command.send_door_state_website
+  - service: mqtt.publish
+    data:
+      topic: vsh/door
+      payload: closed
+      retain: true
 - id: door_status_publish_periodically
   alias: Door Status Publish Periodically
   trigger:
     platform: time
-    minutes: '/5'
-    seconds: 00
+    minutes: /5
+    seconds: 0
   action:
-    - service: rest_command.send_door_state_website
-    - service: mqtt.publish
-      data:
-        topic: "vsh/door"
-        payload_template: "{% if is_state('input_boolean.door_result', 'on') %}open{% else %}closed{% endif %}"
-        retain: true
+  - service: rest_command.send_door_state_website
+  - service: mqtt.publish
+    data:
+      topic: vsh/door
+      payload_template: '{% if is_state(''input_boolean.door_result'', ''on'') %}open{%
+        else %}closed{% endif %}'
+      retain: true
+
+- id: pir_ela_doorbell
+  alias: PIR ELA Doorbell
+  trigger:
+  - entity_id: binary_sensor.pir_sensor
+    platform: state
+    to: 'on'
+  condition:
+    condition: or
+    conditions:
+    - condition: state
+      entity_id: media_player.ela
+      state: 'idle'
+    - condition: state
+      entity_id: media_player.ela
+      state: 'off'
+  action:
+  - service: media_player.play_media
+    data:
+      entity_id: media_player.ela
+      media_content_id: 'http://192.168.9.40/bell.mp3'
+      media_content_type: 'audio/mp3'
 

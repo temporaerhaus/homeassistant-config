@@ -12,6 +12,8 @@ homeassistant:
   time_zone: Europe/Berlin
   # Customization file
   customize: !include customize.yaml
+  auth_providers:
+   - type: trusted_networks
 
 # Enables the frontend
 frontend:
@@ -24,6 +26,11 @@ http:
   # api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   # base_url: example.duckdns.org:8123
+  trusted_networks:
+    - 127.0.0.1
+    - ::1
+    - 192.168.0.0/16
+    - fd00::/8
 
 # Checks for available updates
 # Note: This component will send some information about your system to
@@ -37,6 +44,8 @@ updater:
 # use the hass.io mosquitto broker
 mqtt:
   broker: core-mosquitto
+  discovery: true
+  discovery_prefix: homeassistant
 
 # Discover some devices automatically
 discovery:
@@ -81,11 +90,15 @@ binary_sensor:
     name: Door
     value_template: '{{ value_json.state.open }}'
     icon: mdi:door
-
+  - name: SonoffRF Status
+    platform: mqtt
+    state_topic: "vsh/sonoffrf/status"
+    device_class: connectivity
 
 # Text to speech
 tts:
   - platform: google
+    language: 'de'
 
 device_tracker:
   - platform: unifi
@@ -125,6 +138,24 @@ light:
     state_topic: "sonoff-98098B/relay/1"
     payload_off: "0"
     payload_on: "1"
+  - platform: mqtt
+    name: "Small Fading Lights"
+    command_topic: "vsh/sonoffrf/relay/0/set"
+    state_topic: "vsh/sonoffrf/relay/0"
+    payload_off: "0"
+    payload_on: "1"
+  - platform: mqtt
+    name: "Holiday Lights Salon"
+    command_topic: "vsh/sonoffrf/relay/7/set"
+    state_topic: "vsh/sonoffrf/relay/7"
+    payload_off: "0"
+    payload_on: "1"
+  - platform: mqtt
+    name: "Holiday Lights Corridor"
+    command_topic: "vsh/sonoffrf/relay/6/set"
+    state_topic: "vsh/sonoffrf/relay/6"
+    payload_off: "0"
+    payload_on: "1"
 
 switch:
   - platform: mqtt
@@ -133,6 +164,7 @@ switch:
     state_topic: "vsh/output/poller"
     payload_on: "1500"
     payload_off: "5"
+    assumed_state: true
 
 rest_command:
   send_door_state_website:

@@ -3,3 +3,25 @@ group.all_devices:
   friendly_name: Devices
 input_boolean.door_result:
   hidden: true
+switch.espurna_9ef17e_0:
+  hidden: true
+switch.sonoffrf_7:
+  hidden: true
+switch.sonoffrf_6:
+  hidden: true
+switch.sonoffrf_5:
+  hidden: true
+switch.sonoffrf_4:
+  hidden: true
+switch.sonoffrf_3:
+  hidden: true
+switch.sonoffrf_2:
+  hidden: true
+switch.sonoffrf_1:
+  hidden: true
+switch.salon_5p_hex_power:
+  hidden: true
+sensor.luftdaten_humidity:
+  icon: mdi:water-percent
+switch.sonoffrf_0:
+  hidden: true
