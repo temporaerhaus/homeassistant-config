@@ -1,4 +1,4 @@
-esphomeyaml:
+esphome:
   name: quality
   platform: ESP8266
   board: nodemcuv2
@@ -6,10 +6,7 @@ esphomeyaml:
 wifi:
   ssid: !secret iot_wifi_ssid
   password: !secret iot_wifi_password
-  manual_ip:
-    static_ip: '192.168.9.50'
-    gateway: '192.168.9.2'
-    subnet: '255.255.255.0'
+  fast_connect: on
 
 mqtt:
   broker: '192.168.9.43'
@@ -21,6 +18,11 @@ logger:
 
 ota:
 
+uart:
+  rx_pin: D1
+  tx_pin: D2
+  baud_rate: 9600
+
 sensor:
   - platform: dht
     pin: D7
@@ -30,5 +32,17 @@ sensor:
     humidity:
       name: "Salon Humidity"
     update_interval: 15s
+  - platform: mhz19
+    co2:
+      name: "Salon CO2"
+    temperature:
+      name: "Salon MHZ Temperature"
+    update_interval: 60s
 
-#mhz19: d1,d2
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D8
+      inverted: True
+    name: "Salon Side Door"
+    device_class: door

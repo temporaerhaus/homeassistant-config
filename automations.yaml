@@ -83,7 +83,7 @@
 - id: door_status_publish_periodically
   alias: Door Status Publish Periodically
   trigger:
-    platform: time
+    platform: time_pattern
     minutes: /5
     seconds: 0
   action:
@@ -94,26 +94,37 @@
       payload_template: '{% if is_state(''input_boolean.door_result'', ''on'') %}open{%
         else %}closed{% endif %}'
       retain: true
-
-- id: pir_ela_doorbell
-  alias: PIR ELA Doorbell
+- id: ela_doorbell
+  alias: Doorbell to ELA
   trigger:
-  - entity_id: binary_sensor.pir_sensor
+  - entity_id: binary_sensor.doorbell
     platform: state
     to: 'on'
-  condition:
-    condition: or
-    conditions:
-    - condition: state
-      entity_id: media_player.ela
-      state: 'idle'
-    - condition: state
-      entity_id: media_player.ela
-      state: 'off'
   action:
-  - service: media_player.play_media
-    data:
+  - data:
       entity_id: media_player.ela
-      media_content_id: 'http://192.168.9.40/bell.mp3'
-      media_content_type: 'audio/mp3'
-
+      media_content_id: http://192.168.9.40/ela/bicycle-dreiklang-1.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+  - delay: 00:00:03
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/tuerklingel_aquarium.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+- id: ela_doorswipe
+  alias: Doorswipe to ELA
+  trigger:
+  - entity_id: binary_sensor.doorswipe
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      entity_id: media_player.ela
+      volume_level: 0.4
+    service: media_player.volume_set
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/zen-lo.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media

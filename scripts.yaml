@@ -1,82 +1,82 @@
-
 space:
   alias: Space
   sequence:
-    - service: logbook.log
-      data_template:
-        name: Space
-        message: is being activated
-    - service: media_extractor.play_media
-      data:
-        entity_id: media_player.kreiselcast
-        #media_content_id: https://www.youtube.com/watch?v=rLf6tI4XabQ
-        media_content_id: https://www.youtube.com/playlist?list=PLRJOWz6dYKtHpET4bmY6m3C9H9MlZnx03
-        media_content_type: video/youtube
-        #media_content_id: http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
-        #media_content_type: video/mp4
-        #media_content_id: http://www.ustream.tv/embed/17074538
-        #media_content_type: video
-    #- service: media_player.play_media
-    #  data:
-    #    entity_id: media_player.salon
-    #    media_content_id: http://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluidscape.mp3
-    #    media_content_type: MUSIC
+  - service: logbook.log
+    data_template:
+      name: Space
+      message: is being activated
+  - service: media_extractor.play_media
+    data:
+      entity_id: media_player.kreiselcast
+      media_content_id: https://www.youtube.com/playlist?list=PLRJOWz6dYKtHpET4bmY6m3C9H9MlZnx03
+      media_content_type: video/youtube
 space_music:
   alias: Space Music
   sequence:
-    #- service: media_player.play_media
-    - service: media_extractor.play_media
-      data:
-        entity_id: media_player.salon
-        #media_content_id: http://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluidscape.mp3
-        media_content_id: https://www.youtube.com/watch?v=tYh8q8z2kCw
-        media_content_type: video/youtube
-        #media_content_type: MUSIC
+  - service: media_extractor.play_media
+    data:
+      entity_id: media_player.salon
+      media_content_id: https://www.youtube.com/watch?v=tYh8q8z2kCw
+      media_content_type: video/youtube
 cat_videos:
   alias: Cat Videos
   sequence:
-    - service: media_extractor.play_media
-      data:
-        entity_id: media_player.kreiselcast
-        #media_content_id: https://www.youtube.com/watch?v=kexjYVJt_cY
-        media_content_id: https://www.youtube.com/watch?v=Ah6nNHSFK1A
-        media_content_type: video/youtube
+  - service: media_extractor.play_media
+    data:
+      entity_id: media_player.kreiselcast
+      media_content_id: https://www.youtube.com/watch?v=Ah6nNHSFK1A
+      media_content_type: video/youtube
 stop_cast:
   alias: Stop Cast
   sequence:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.kreiselcast
+  - service: media_player.media_stop
+    data:
+      entity_id: media_player.kreiselcast
 random_ela:
-  alias: Play random stuff on ELA
+  alias: ELA random
   sequence:
-    - service: media_player.play_media
-      data_template:
-        #message: '{"entity_id":"media_player.ela","media_content_id":"http://192.168.9.40/ela/{{ (range(1, 5)|random) }}.mp3","media_content_type":"audio/mp3"}'
-        entity_id: media_player.ela
-        media_content_id: "http://192.168.9.40/ela/{{ (range(1, 11)|random) }}.mp3"
-        media_content_type: "audio/mp3"
+  - data_template:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/{{ (range(1, 12)|random) }}.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
 random_kmart_ela:
-  alias: Play random kmart announcement on ELA
+  alias: ELA kmart
   sequence:
-    - service: media_player.play_media
-      data_template:
-        entity_id: media_player.ela
-        media_content_id: "http://192.168.9.40/ela/kmart/{{ (range(1, 14)|random) }}.mp3"
-        media_content_type: "audio/mp3"
+  - data_template:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/kmart/{{ (range(1, 14)|random) }}.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+random_honk_ela:
+  alias: ELA honk
+  sequence:
+  - data_template:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/honk/{{ (range(1, 6)|random) }}.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
 attention_ela:
-  alias: Play attention bell on ELA
+  alias: ELA bell
   sequence:
-    - service: media_player.play_media
-      data:
-        entity_id: media_player.ela
-        media_content_id: "http://192.168.9.40/ela/airplane-seat-pling.mp3"
-        media_content_type: "audio/mp3"
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/airplane-seat-pling.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
 crickets_ela:
-  alias: Play crickets on ELA
+  alias: ELA crickets
   sequence:
-    - service: media_player.play_media
-      data:
-        entity_id: media_player.ela
-        media_content_id: "http://192.168.9.40/ela/crickets.mp3"
-        media_content_type: "audio/mp3"
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/crickets.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+sadtrombone_ela:
+  alias: ELA sad trombone
+  sequence:
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://192.168.9.40/ela/sadtrombone.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media

@@ -9,10 +9,8 @@ feinstaub:
   name: Feinstaubsensor Innenhof
   icon: mdi:cloud
   entities:
-    - sensor.luftdaten_humidity
-    - sensor.luftdaten_temperature
-    - sensor.luftdaten_pm10
-    - sensor.luftdaten_pm25
+    - sensor.luftdaten_255_p1
+    - sensor.luftdaten_255_p2
 
 salon:
   name: Salon

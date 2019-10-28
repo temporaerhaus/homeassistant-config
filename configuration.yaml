@@ -1,6 +1,6 @@
 homeassistant:
   # Name of the location where Home Assistant is running
-  name: Home
+  name: verschwoerhaus
   # Location required to calculate the time the sun rises and sets
   latitude: 48.39646
   longitude: 9.99041
@@ -14,7 +14,12 @@ homeassistant:
   customize: !include customize.yaml
   auth_providers:
    - type: trusted_networks
-
+     trusted_networks:
+      - 127.0.0.1
+      - ::1
+      - 192.168.0.0/16
+      - fd00::/8
+        
 # Enables the frontend
 frontend:
 
@@ -26,11 +31,6 @@ http:
   # api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   # base_url: example.duckdns.org:8123
-  trusted_networks:
-    - 127.0.0.1
-    - ::1
-    - 192.168.0.0/16
-    - fd00::/8
 
 # Checks for available updates
 # Note: This component will send some information about your system to
@@ -42,10 +42,10 @@ updater:
   # include_used_components: true
 
 # use the hass.io mosquitto broker
-mqtt:
-  broker: core-mosquitto
-  discovery: true
-  discovery_prefix: homeassistant
+#mqtt:
+#  broker: core-mosquitto
+#  discovery: true
+#  discovery_prefix: homeassistant
 
 # Discover some devices automatically
 discovery:
@@ -67,48 +67,46 @@ sun:
 
 # Weather prediction
 sensor:
-  - platform: luftdaten
-    sensorid: 255
-    monitored_conditions:
-      - P1
-      - P2
-  - platform: luftdaten
-    sensorid: 256
-    monitored_conditions:
-      - temperature
-      - humidity
   - platform: rest
-    resource: https://map10.freifunk-ulm.de/data/nodes.json
+    #resource: https://map10.freifunk-ulm.de/data/nodes.json
+    resource: https://map11.freifunk-ulm.de/data/meshviewer.json
     method: GET
     name: "Freifunk Clients"
-    value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="statistics") | map(attribute="clients") | first }}'
+    #value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="statistics") | map(attribute="clients") | first }}'
+    value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="clients") | first }}'
 
-binary_sensor:
-  - platform: rest
-    resource: http://192.168.9.30
-    method: GET
-    name: Door
-    value_template: '{{ value_json.state.open }}'
-    icon: mdi:door
-  - name: SonoffRF Status
-    platform: mqtt
-    state_topic: "vsh/sonoffrf/status"
-    device_class: connectivity
+#binary_sensor:
+#  - platform: mqtt
+#    name: "Door"
+#    state_topic: "doorsensor/binary_sensor/door/state"
+#    payload_off: "0"
+#    payload_on: "1"
+#    device_class: door
+#  - platform: rest
+#    resource: http://192.168.9.30
+#    method: GET
+#    name: Door
+#    value_template: '{{ value_json.state.open }}'
+#  - name: SonoffRF Status
+#    platform: mqtt
+#    state_topic: "vsh/sonoffrf/status"
+#    device_class: connectivity
 
 # Text to speech
 tts:
-  - platform: google
+  - platform: google_translate
+    service_name: google_say
     language: 'de'
 
-device_tracker:
-  - platform: unifi
-    host: "192.168.9.9"
-    username: !secret unifi_username
-    password: !secret unifi_password
-    verify_ssl: False
-    new_device_defaults:
-      track_new_devices: False
-      hide_if_away: True
+#device_tracker:
+#  - platform: unifi
+#    host: "192.168.9.9"
+#    username: !secret unifi_username
+#    password: !secret unifi_password
+#    verify_ssl: False
+#    new_device_defaults:
+#      track_new_devices: False
+#      hide_if_away: True
 
 input_select:
   door_override:
@@ -128,34 +126,85 @@ input_boolean:
 light:
   - platform: mqtt
     name: "Door Traffic Light Green"
-    command_topic: "sonoff-98098B/relay/0/set"
-    state_topic: "sonoff-98098B/relay/0"
+    command_topic: "vsh/doorlamp/relay/0/set"
+    state_topic: "vsh/doorlamp/relay/0"
     payload_off: "0"
     payload_on: "1"
   - platform: mqtt
     name: "Door Traffic Light Red"
-    command_topic: "sonoff-98098B/relay/1/set"
-    state_topic: "sonoff-98098B/relay/1"
+    command_topic: "vsh/doorlamp/relay/1/set"
+    state_topic: "vsh/doorlamp/relay/1"
     payload_off: "0"
     payload_on: "1"
   - platform: mqtt
-    name: "Small Fading Lights"
+    name: "Small Fading"
     command_topic: "vsh/sonoffrf/relay/0/set"
     state_topic: "vsh/sonoffrf/relay/0"
     payload_off: "0"
     payload_on: "1"
   - platform: mqtt
-    name: "Holiday Lights Salon"
+    name: "Salon Holiday"
     command_topic: "vsh/sonoffrf/relay/7/set"
     state_topic: "vsh/sonoffrf/relay/7"
     payload_off: "0"
     payload_on: "1"
   - platform: mqtt
-    name: "Holiday Lights Corridor"
+    name: "Corridor Holiday"
     command_topic: "vsh/sonoffrf/relay/6/set"
     state_topic: "vsh/sonoffrf/relay/6"
     payload_off: "0"
     payload_on: "1"
+  - platform: mqtt
+    name: "Couch"
+    state_topic: "vsh/couchlamp/relay/0"
+    command_topic: "vsh/couchlamp/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/couchlamp/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Salon Hex"
+    state_topic: "vsh/salon5phex/light/salon_5p_hex/state"
+    command_topic: "vsh/salon5phex/light/salon_5p_hex/command"
+    availability_topic: "vsh/salon5phex/status"
+    schema: json
+  - platform: mqtt
+    name: "Tree"
+    state_topic: "vsh/treelamp/relay/0"
+    command_topic: "vsh/treelamp/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/treelamp/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Truss"
+    state_topic: "vsh/trusslight/relay/0"
+    command_topic: "vsh/trusslight/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/trusslight/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Banner"
+    state_topic: "vsh/bannerlamp/relay/0"
+    command_topic: "vsh/bannerlamp/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/bannerlamp/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Rack"
+    state_topic: "vsh/racklamp/relay/0"
+    command_topic: "vsh/racklamp/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/racklamp/status"
+    payload_available: 1
+    payload_not_available: 0
 
 switch:
   - platform: mqtt
@@ -164,7 +213,7 @@ switch:
     state_topic: "vsh/output/poller"
     payload_on: "1500"
     payload_off: "5"
-    assumed_state: true
+    optimistic: true
 
 rest_command:
   send_door_state_website:
@@ -175,7 +224,19 @@ rest_command:
       Authorization: !secret website_door_auth_header
     payload: "{\"open-door\":{\"state\":\"{% if is_state('input_boolean.door_result', 'on') %}open{% else %}closed{% endif %}\"}}"
 
+vacuum:
+  - platform: xiaomi_miio
+    host: 192.168.9.39
+    token: !secret mi_vacuum_token
+
+cast:
+  media_player:
+    - host: 10.72.72.38
+    # ^- ela
+
 media_extractor:
+
+system_health:
 
 group: !include groups.yaml
 automation: !include automations.yaml

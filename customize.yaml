@@ -19,9 +19,29 @@ switch.sonoffrf_2:
   hidden: true
 switch.sonoffrf_1:
   hidden: true
-switch.salon_5p_hex_power:
-  hidden: true
-sensor.luftdaten_humidity:
-  icon: mdi:water-percent
 switch.sonoffrf_0:
+  hidden: true
+automation.door_status_calculate_closed:
+  hidden: true
+automation.door_status_calculate_open:
+  hidden: true
+automation.door_status_override_closed:
+  hidden: true
+automation.door_status_override_open:
+  hidden: true
+automation.door_status_publish_closed:
+  hidden: true
+automation.door_status_publish_open:
+  hidden: true
+automation.door_status_publish_periodically:
+  hidden: true
+light.door_traffic_light_red:
+  hidden: true
+light.door_traffic_light_green:
+  hidden: true
+sensor.luftdaten_255_temperature:
+  hidden: true
+sensor.luftdaten_255_pressure:
+  hidden: true
+sensor.luftdaten_255_humidity:
   hidden: true
