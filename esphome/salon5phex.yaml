@@ -8,11 +8,10 @@ wifi:
   ssid: !secret iot_wifi_ssid
   password: !secret iot_wifi_password
   fast_connect: on
-  ap:
-    ssid: 'salon5phex'
+  use_address: '10.72.72.45'
 
 mqtt:
-  broker: '192.168.9.43'
+  broker: '10.72.72.10'
   username: 'hex'
   password: !secret iot_mqtt_salonp5hex_passsword
   topic_prefix: 'vsh/salon5phex'
@@ -21,7 +20,13 @@ mqtt:
 # Enable logging
 logger:
 
+# Do Not Enable Home Assistant API
+#api:
+
 ota:
+
+web_server:
+  port: 80
 
 binary_sensor:
   - platform: gpio

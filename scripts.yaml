@@ -21,11 +21,11 @@ space_music:
 cat_videos:
   alias: Cat Videos
   sequence:
-  - service: media_extractor.play_media
-    data:
+  - data:
       entity_id: media_player.kreiselcast
-      media_content_id: https://www.youtube.com/watch?v=Ah6nNHSFK1A
+      media_content_id: https://www.youtube.com/watch?v=YfYYUsA9VpE
       media_content_type: video/youtube
+    service: media_extractor.play_media
 stop_cast:
   alias: Stop Cast
   sequence:
@@ -37,7 +37,7 @@ random_ela:
   sequence:
   - data_template:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/{{ (range(1, 12)|random) }}.mp3
+      media_content_id: http://10.72.0.10/ela/{{ (range(1, 14)|random) }}.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 random_kmart_ela:
@@ -45,7 +45,7 @@ random_kmart_ela:
   sequence:
   - data_template:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/kmart/{{ (range(1, 14)|random) }}.mp3
+      media_content_id: http://10.72.0.10/ela/kmart/{{ (range(1, 14)|random) }}.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 random_honk_ela:
@@ -53,7 +53,15 @@ random_honk_ela:
   sequence:
   - data_template:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/honk/{{ (range(1, 6)|random) }}.mp3
+      media_content_id: http://10.72.0.10/ela/honk/{{ (range(1, 6)|random) }}.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+random_anno_ela:
+  alias: ELA anno
+  sequence:
+  - data_template:
+      entity_id: media_player.ela
+      media_content_id: http://10.72.0.10/ela/anno/{{ (range(1, 310)|random) }}.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 attention_ela:
@@ -61,7 +69,7 @@ attention_ela:
   sequence:
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/airplane-seat-pling.mp3
+      media_content_id: http://10.72.0.10/ela/airplane-seat-pling.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 crickets_ela:
@@ -69,7 +77,7 @@ crickets_ela:
   sequence:
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/crickets.mp3
+      media_content_id: http://10.72.0.10/ela/crickets.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 sadtrombone_ela:
@@ -77,6 +85,19 @@ sadtrombone_ela:
   sequence:
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/sadtrombone.mp3
+      media_content_id: http://10.72.0.10/ela/sadtrombone.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
+aufruecken_ela:
+  alias: ELA aufruecken
+  sequence:
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://10.72.0.10/ela/4.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+'1572793186913':
+  alias: STOP
+  sequence:
+  - data: {}
+    service: media_player.media_stop

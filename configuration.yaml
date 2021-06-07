@@ -18,6 +18,8 @@ homeassistant:
       - 127.0.0.1
       - ::1
       - 192.168.0.0/16
+      - 10.72.0.0/21
+      - 10.72.72.0/21
       - fd00::/8
         
 # Enables the frontend
@@ -41,12 +43,6 @@ updater:
   # Optional, allows Home Assistant developers to focus on popular components.
   # include_used_components: true
 
-# use the hass.io mosquitto broker
-#mqtt:
-#  broker: core-mosquitto
-#  discovery: true
-#  discovery_prefix: homeassistant
-
 # Discover some devices automatically
 discovery:
 
@@ -62,51 +58,66 @@ logbook:
 # Enables a map showing the location of tracked devices
 #map:
 
+mobile_app:
+
 # Track the sun
 sun:
 
-# Weather prediction
+notify:
+  - name: briefkasten_bot
+    platform: slack
+    api_key: !secret briefkasten_slack_bot
+    default_channel: "briefkasten-test"
+
+thethingsnetwork:
+  app_id: weinhof-briefkasten
+  access_key: !secret briefkasten_ttn
+
 sensor:
   - platform: rest
-    #resource: https://map10.freifunk-ulm.de/data/nodes.json
     resource: https://map11.freifunk-ulm.de/data/meshviewer.json
     method: GET
     name: "Freifunk Clients"
-    #value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="statistics") | map(attribute="clients") | first }}'
     value_template: '{{ value_json.nodes | selectattr("nodeinfo.node_id", "eq", "f6f26d6d4140") | map(attribute="clients") | first }}'
+  - platform: thethingsnetwork
+    device_id: briefkasten-zda
+    values:
+      state: ''
+      voltage: V
+      measure: '/ 1023'
+  - platform: rest
+    method: GET
+    resource: https://sensoren.lorapark.de/api/weather
+    name: "Außentemperatur (Lorapark)"
+    value_template: "{{ value_json['temp_3'][0]['y'] }}"
+    unit_of_measurement: "°C"
+  - platform: template
+    sensors:
+      briefkasten_zda:
+        friendly_name: "Briefkasten Digitale Agenda"
+        value_template: >-
+          {% set expected = -0.038294342664611625*float(states('sensor.aussentemperatur_lorapark'))*float(states('sensor.aussentemperatur_lorapark'))+2.3796209920149796*float(states('sensor.aussentemperatur_lorapark')) +899.8384285406182 %}
+          {% if float(states('sensor.briefkasten_zda_measure')) >= expected + 2 %}
+            high value
+          {% elif float(states('sensor.briefkasten_zda_measure')) <= expected - 2 %}
+            low value
+          {% else %}
+            unsure
+          {% endif %}
+      briefkasten_zda_akku:
+        friendly_name: "Briefkastensensor Akkustand"
+        unit_of_measurement: "V"
+        value_template: "{{ states('sensor.briefkasten_zda_voltage') }}"
+      briefkasten_zda_brightness:
+        friendly_name: "Briefkastensensor Helligkeitswert"
+        unit_of_measurement: "/ 1023"
+        value_template: "{{ states('sensor.briefkasten_zda_measure') }}"
 
-#binary_sensor:
-#  - platform: mqtt
-#    name: "Door"
-#    state_topic: "doorsensor/binary_sensor/door/state"
-#    payload_off: "0"
-#    payload_on: "1"
-#    device_class: door
-#  - platform: rest
-#    resource: http://192.168.9.30
-#    method: GET
-#    name: Door
-#    value_template: '{{ value_json.state.open }}'
-#  - name: SonoffRF Status
-#    platform: mqtt
-#    state_topic: "vsh/sonoffrf/status"
-#    device_class: connectivity
 
-# Text to speech
 tts:
   - platform: google_translate
     service_name: google_say
     language: 'de'
-
-#device_tracker:
-#  - platform: unifi
-#    host: "192.168.9.9"
-#    username: !secret unifi_username
-#    password: !secret unifi_password
-#    verify_ssl: False
-#    new_device_defaults:
-#      track_new_devices: False
-#      hide_if_away: True
 
 input_select:
   door_override:
@@ -205,6 +216,71 @@ light:
     availability_topic: "vsh/racklamp/status"
     payload_available: 1
     payload_not_available: 0
+  - platform: mqtt
+    name: "Katze LED-Band"
+    state_topic: "vsh/katze_ledband/relay/0"
+    command_topic: "vsh/katze_ledband/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/katze_ledband/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Cabinet"
+    state_topic: "vsh/cabinet/relay/0"
+    command_topic: "vsh/cabinet/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/cabinet/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Wardrobe"
+    state_topic: "vsh/wardrobe/relay/0"
+    command_topic: "vsh/wardrobe/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/wardrobe/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "Aquarium Desk"
+    state_topic: "vsh/aquarium_desk/relay/0"
+    command_topic: "vsh/aquarium_desk/relay/0/set"
+    payload_on: 1
+    payload_off: 0
+    availability_topic: "vsh/aquarium_desk/status"
+    payload_available: 1
+    payload_not_available: 0
+  - platform: mqtt
+    name: "hallway"
+    command_topic: "cmnd/hallway/POWER"
+    state_topic: "tele/hallway/STATE"
+    state_value_template: "{{value_json.POWER}}"
+    availability_topic: "tele/hallway/LWT"
+    brightness_command_topic: "cmnd/hallway/Dimmer"
+    brightness_state_topic: "tele/hallway/STATE"
+    brightness_scale: 100
+    on_command_type: "brightness"
+    brightness_value_template: "{{value_json.Dimmer}}"
+    rgb_command_topic: "cmnd/hallway/Color2"
+    rgb_state_topic: "tele/hallway/STATE"
+    rgb_value_template: "{{value_json.Color.split(',')[0:3]|join(',')}}"
+    effect_command_topic: "cmnd/hallway/Scheme"
+    effect_state_topic: "tele/hallway/STATE"
+    effect_value_template: "{{value_json.Scheme}}"
+    effect_list:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    qos: 1
+    retain: false
 
 switch:
   - platform: mqtt
@@ -216,22 +292,35 @@ switch:
     optimistic: true
 
 rest_command:
-  send_door_state_website:
-    url: 'https://verschwoerhaus.de/wp-json/open-door/state'
+  #send_door_state_wordpress:
+  #  url: 'https://verschwoerhaus.de/wp-json/open-door/state'
+  #  method: 'POST'
+  #  content_type: 'application/json'
+  #  headers:
+  #    Authorization: !secret website_door_auth_header
+  #  payload: "{\"open-door\":{\"state\":\"{% if is_state('input_boolean.door_result', 'on') %}open{% else %}closed{% endif %}\"}}"
+  send_door_state_spaceapi:
+    url: 'https://verschwoerhaus.de/spaceapi/door/'
     method: 'POST'
     content_type: 'application/json'
     headers:
-      Authorization: !secret website_door_auth_header
-    payload: "{\"open-door\":{\"state\":\"{% if is_state('input_boolean.door_result', 'on') %}open{% else %}closed{% endif %}\"}}"
+      Authorization: !secret spaceapi_door_auth_header
+    payload: "{\"time\":{{ as_timestamp(now()) | int }},\"state\":\"{% if is_state('input_boolean.door_result', 'on') %}opened{% else %}closed{% endif %}\"}"
 
 vacuum:
   - platform: xiaomi_miio
-    host: 192.168.9.39
-    token: !secret mi_vacuum_token
+    host: 10.72.72.34
+    token: !secret mi_vacuum_rocky_token
+    name: rocky
+  - platform: xiaomi_miio
+    host: 10.72.72.39
+    token: !secret mi_vacuum_rocky2_token
+    name: rocky2
 
 cast:
   media_player:
     - host: 10.72.72.38
+      uuid: "2b35d2ea-17cf-7e25-f356-b2f978b14eca"
     # ^- ela
 
 media_extractor:

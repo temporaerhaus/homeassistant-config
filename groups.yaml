@@ -18,3 +18,22 @@ salon:
     - sensor.salon_co2
     - sensor.salon_humidity
     - sensor.salon_temperature
+    
+Lights:
+    name: Lights
+    entities:
+    - light.aquarium
+    - light.aquarium_desk
+    - light.banner
+    - light.cabinet
+    - light.corridor_holiday
+    - light.couch
+    - light.katze_led_band
+    - light.rack
+    - light.salon_hex
+    - light.salon_holiday
+    - light.small_fading
+    - light.tree
+    - light.truss
+    - light.wardrobe
+

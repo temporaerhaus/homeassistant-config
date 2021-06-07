@@ -1,0 +1,31 @@
+esphome:
+  name: briefkasten
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret iot_wifi_ssid
+  password: !secret iot_wifi_password
+  fast_connect: on
+  use_address: '10.72.72.85'
+
+
+sensor:
+  - platform: dht
+    pin: D7
+    model: DHT22
+    temperature:
+      name: "Briefkasten Temperatur"
+    update_interval: 120s
+
+# Enable logging
+logger:
+
+api:
+
+ota:
+
+uart:
+  rx_pin: D1
+  tx_pin: D2
+  baud_rate: 9600

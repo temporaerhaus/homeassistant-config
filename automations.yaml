@@ -1,3 +1,4 @@
+# Door
 - id: door_status_calc_open
   alias: Door Status Calculate Open
   trigger:
@@ -57,7 +58,7 @@
   action:
   - service: homeassistant.turn_on
     entity_id: light.door_traffic_light_green
-  - service: rest_command.send_door_state_website
+  - service: rest_command.send_door_state_spaceapi
   - service: mqtt.publish
     data:
       topic: vsh/door
@@ -74,7 +75,7 @@
   action:
   - service: homeassistant.turn_on
     entity_id: light.door_traffic_light_red
-  - service: rest_command.send_door_state_website
+  - service: rest_command.send_door_state_spaceapi
   - service: mqtt.publish
     data:
       topic: vsh/door
@@ -87,7 +88,7 @@
     minutes: /5
     seconds: 0
   action:
-  - service: rest_command.send_door_state_website
+  - service: rest_command.send_door_state_spaceapi
   - service: mqtt.publish
     data:
       topic: vsh/door
@@ -103,13 +104,13 @@
   action:
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/bicycle-dreiklang-1.mp3
+      media_content_id: http://10.72.0.10/ela/bicycle-dreiklang-1.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
   - delay: 00:00:03
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/tuerklingel_aquarium.mp3
+      media_content_id: http://10.72.0.10/ela/tuerklingel_aquarium.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
 - id: ela_doorswipe
@@ -125,6 +126,204 @@
     service: media_player.volume_set
   - data:
       entity_id: media_player.ela
-      media_content_id: http://192.168.9.40/ela/zen-lo.mp3
+      media_content_id: http://10.72.0.10/ela/zen-lo.mp3
       media_content_type: audio/mp3
     service: media_player.play_media
+- id: '1588530578154'
+  alias: Doorbell to Notify
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.doorbell
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      message: VSH Türklingel Aquarium
+    service: notify.notify
+
+# Emergency button
+- id: ela_emerg
+  alias: Emergency Button to ELA
+  trigger:
+  - entity_id: binary_sensor.notfallbutton
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      entity_id: media_player.ela
+      volume_level: 0.4
+    service: media_player.volume_set
+  - data:
+      entity_id: media_player.ela
+      media_content_id: http://10.72.0.10/ela/1.mp3
+      media_content_type: audio/mp3
+    service: media_player.play_media
+
+# Corona Ampel
+- id: corona_ampel_gruen
+  alias: Corona-Ampel Grün
+  trigger:
+  - below: '800'
+    entity_id: sensor.salon_co2
+    for: 00:05:00
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      notification_id: corona_status
+    service: persistent_notification.dismiss
+  - data:
+      message: Yay! Aerosol-Anteil ist vertretbar.
+      notification_id: corona_status
+      title: Corona-Ampel GRÜN
+    service: persistent_notification.create
+  mode: single
+- id: corona_ampel_gelb
+  alias: Corona-Ampel Gelb
+  trigger:
+  - above: '800'
+    below: '1100'
+    entity_id: sensor.salon_co2
+    for: 00:05:00
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      notification_id: corona_status
+    service: persistent_notification.dismiss
+  - data:
+      message: Lüften wird dringend empfohlen.
+      notification_id: corona_status
+      title: Corona-Ampel GELB
+    service: persistent_notification.create
+  - data:
+      message: 'AerosolAmpel.WarnstufeGelb.BitteLueften'
+    entity_id: media_player.ela
+    service: tts.google_say
+  mode: single
+- id: corona_ampel_rot
+  alias: Corona-Ampel Rot
+  trigger:
+  - above: '1100'
+    entity_id: sensor.salon_co2
+    for: 00:05:00
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      notification_id: corona_status
+    service: persistent_notification.dismiss
+  - data:
+      message: Unbedingt lüften. Jetzt! Sofort!
+      notification_id: corona_status
+      title: Corona-Ampel ROT
+    service: persistent_notification.create
+  - data:
+      message: 'AerosolAmpel.WarnstufeRot.BitteSofortUndUnverzueglichLueften'
+    entity_id: media_player.ela
+    service: tts.google_say
+  mode: single
+
+# Briefkasten
+- id: briefkasten_gefuellt
+  alias: "Value goes high"
+  trigger:
+  - platform: state
+    entity_id: sensor.briefkasten_zda
+    from: "low value"
+    to: "high value"
+    for: 00:11:00
+  action:
+  - data:
+      message: "Value goes high!"
+    service: notify.briefkasten_bot
+- id: briefkasten_geleert
+  alias: "Value goes low"
+  trigger:
+  - platform: state
+    entity_id: sensor.briefkasten_zda
+    from: "high value"
+    to: "low value"
+    for: 00:11:00
+  action:
+  - data:
+      message: "Value goes low!"
+    service: notify.briefkasten_bot
+    
+# Staubsauger
+- id: '1578674720930'
+  alias: Rocky putzt
+  description: ''
+  trigger:
+  - at: 02:45
+    platform: time
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - wed
+    - fri
+  action:
+  - entity_id: vacuum.rocky
+    service: vacuum.start
+  - data: {}
+    entity_id: vacuum.rocky2
+    service: vacuum.start
+  mode: single
+
+# ELA Sonstiges
+- id: '1583270463174'
+  alias: Genull Nau Uhr
+  description: ''
+  trigger:
+  - at: '23:59:57'
+    platform: time
+  condition: []
+  action:
+  - data:
+      entity_id: media_player.ela
+      volume_level: 0.4
+    service: media_player.volume_set
+  - data:
+      media_content_id: http://10.72.0.10/ela/genull-nau-uhr.mp3
+      media_content_type: audio/mp3
+    entity_id: media_player.ela
+    service: media_player.play_media
+- id: '1588692096784'
+  alias: Movement Notification Server
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: '1216012043693872'
+  condition: []
+  action:
+  - data:
+      message: Bewegung erkannt
+      title: VSH Serverraum
+    service: notify.notify
+
+# Licht
+- id: '1588770139939'
+  alias: lichtschalter ein
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: '2817147401660853'
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.katze_led_band
+    service: light.turn_on
+- id: '1588772073862'
+  alias: lichtschalter aus
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: 0265128621695291
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.katze_led_band
+    service: light.turn_off
+

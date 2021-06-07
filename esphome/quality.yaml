@@ -2,14 +2,18 @@ esphome:
   name: quality
   platform: ESP8266
   board: nodemcuv2
+  on_boot:
+    then:
+      - output.turn_on: co2_led_green
 
 wifi:
   ssid: !secret iot_wifi_ssid
   password: !secret iot_wifi_password
   fast_connect: on
+  use_address: '10.72.72.27'
 
 mqtt:
-  broker: '192.168.9.43'
+  broker: '10.72.72.10'
   username: 'quality'
   password: !secret iot_mqtt_quality_passsword
 
@@ -23,6 +27,30 @@ uart:
   tx_pin: D2
   baud_rate: 9600
 
+output:
+  - platform: gpio
+    pin: D4
+    id: co2_led_red
+  - platform: gpio
+    pin: D6
+    id: co2_led_yellow
+  - platform: gpio
+    pin: D8
+    id: co2_led_green
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D5
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "CO2 Calibration push button"
+    filters:
+      - delayed_on_off: 100ms
+    on_press:
+      then:
+        - mhz19.calibrate_zero: salon_co2
+
 sensor:
   - platform: dht
     pin: D7
@@ -31,18 +59,42 @@ sensor:
       name: "Salon Temperature"
     humidity:
       name: "Salon Humidity"
-    update_interval: 15s
+    update_interval: 60s
   - platform: mhz19
+    id: salon_co2
     co2:
       name: "Salon CO2"
-    temperature:
-      name: "Salon MHZ Temperature"
-    update_interval: 60s
+      on_value_range:
+        - below: 800.0
+          then:
+            - output.turn_off: co2_led_red
+            - output.turn_off: co2_led_yellow
+            - output.turn_on: co2_led_green
+        - above: 800.0
+          below: 1200.0
+          then:
+            - output.turn_off: co2_led_red
+            - output.turn_on: co2_led_yellow
+            - output.turn_off: co2_led_green
+        - above: 1200.0
+          then:
+            - output.turn_on: co2_led_red
+            - output.turn_off: co2_led_yellow
+            - output.turn_off: co2_led_green
+      filters:
+        - median:
+            window_size: 4
+            send_every: 4
+            send_first_at: 4
+    #temperature:
+      #name: "Salon MHZ Temperature"
+    automatic_baseline_calibration: False
+    update_interval: 15s
 
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: D8
-      inverted: True
-    name: "Salon Side Door"
-    device_class: door
+#binary_sensor:
+#  - platform: gpio
+#    pin:
+#      number: D8
+#      inverted: True
+#    name: "Salon Side Door"
+#    device_class: door
